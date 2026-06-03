@@ -23,7 +23,6 @@ describe('formatCurrency', () => {
 describe('formatDate', () => {
   it('formats an ISO date string to readable format', () => {
     const result = formatDate('2024-03-15T00:00:00.000Z');
-    // dayjs formats: Mar 15, 2024
     expect(result).toContain('2024');
     expect(result).toContain('15');
   });
@@ -67,7 +66,7 @@ describe('dateRangeToParams', () => {
     expect(result.startDate).toBe(expected);
   });
 
-  it('returns empty object for "custom" (user provides dates manually)', () => {
+  it('returns empty object for "custom"', () => {
     const result = dateRangeToParams('custom');
     expect(result).toEqual({});
   });
@@ -75,7 +74,6 @@ describe('dateRangeToParams', () => {
 
 describe('exportToCSV', () => {
   beforeEach(() => {
-    // Mock DOM APIs used by the export function
     const mockClick = vi.fn();
     const mockCreateObjectURL = vi.fn(() => 'blob:mock-url');
     const mockRevokeObjectURL = vi.fn();
@@ -86,10 +84,17 @@ describe('exportToCSV', () => {
       set download(_: string) {},
     } as unknown as HTMLAnchorElement);
 
-    Object.defineProperty(URL, 'createObjectURL', { value: mockCreateObjectURL, writable: true });
-    Object.defineProperty(URL, 'revokeObjectURL', { value: mockRevokeObjectURL, writable: true });
+    Object.defineProperty(URL, 'createObjectURL', {
+      value: mockCreateObjectURL,
+      writable: true,
+    });
 
-    global.Blob = vi.fn().mockImplementation((content: string[]) => ({
+    Object.defineProperty(URL, 'revokeObjectURL', {
+      value: mockRevokeObjectURL,
+      writable: true,
+    });
+
+    globalThis.Blob = vi.fn().mockImplementation((content: string[]) => ({
       content,
       type: 'text/csv',
     })) as unknown as typeof Blob;
@@ -110,8 +115,13 @@ describe('exportToCSV', () => {
         createdAt: '2024-03-15T00:00:00.000Z',
       },
     ]);
-    expect(global.Blob).toHaveBeenCalled();
-    const callArg = (global.Blob as ReturnType<typeof vi.fn>).mock.calls[0][0][0] as string;
+
+    expect(globalThis.Blob).toHaveBeenCalled();
+
+    const callArg = (
+      globalThis.Blob as ReturnType<typeof vi.fn>
+    ).mock.calls[0][0][0] as string;
+
     expect(callArg).toContain('Food');
     expect(callArg).toContain('500.00');
     expect(callArg).toContain('Lunch');

@@ -96,12 +96,11 @@ export default function ExpenseTable({
     });
   }, [expenses, sortField, sortOrder]);
 
-  const isOverdue = (expense: Expense): boolean => {
+  const isOverdue = () => false;
     // An expense is never "overdue" — that concept applies to tasks, not past spending.
     // We instead visually flag unusually large amounts (top 10% heuristic is beyond scope,
     // so we skip — the due-date coloring requirement is in Exercise 1, not Exercise 2).
-    return false;
-  };
+    
 
   return (
     <Card>
@@ -179,7 +178,7 @@ export default function ExpenseTable({
                     hover
                     sx={{
                       '&:last-child td': { border: 0 },
-                      opacity: isOverdue(expense) ? 0.7 : 1,
+                      opacity: isOverdue() ? 0.7 : 1,
                     }}
                   >
                     <TableCell>

@@ -17,7 +17,7 @@ import { useBudgets } from '@/hooks/useBudgets';
 import { useChartData } from '@/hooks/useChartData';
 
 import { expenseService } from '@/services/expense.service';
-import type { Expense, ExpenseFilters } from '@/types';
+import type { Expense, ExpenseFilters, Category } from '@/types'; 
 import type { ExpenseFormValues } from '@/utils/validation';
 
 export default function Dashboard() {
@@ -25,8 +25,15 @@ export default function Dashboard() {
   const [filters, setFilters] = useState<ExpenseFilters>({});
 
   // ─── Data fetching ────────────────────────────────────────────────────────
-  const { expenses, total, totalPages, page, isLoading, error: listError, setPage, refetch: refetchExpenses } =
-    useExpenses(filters);
+  const {
+  expenses,
+  total,
+  totalPages,
+  page,
+  isLoading,
+  setPage,
+  refetch: refetchExpenses
+} = useExpenses(filters)
   const { summary, isLoading: summaryLoading, refetch: refetchSummary } = useSummary();
   const { budgets, isLoading: budgetsLoading, refetch: refetchBudgets } = useBudgets();
 
@@ -74,29 +81,36 @@ export default function Dashboard() {
   const handleDeleteExpense = (expense: Expense) => {
     setDeleteTarget(expense);
   };
+const handleFormSubmit = async (values: ExpenseFormValues) => {
+  setFormSubmitting(true);
+  setFormError(null);
 
-  const handleFormSubmit = async (values: ExpenseFormValues) => {
-    setFormSubmitting(true);
-    setFormError(null);
-    try {
-      if (editTarget) {
-        await expenseService.update(editTarget.id, {
-          ...values,
-          amount: Number(values.amount),
-        });
-        showToast('Expense updated successfully');
-      } else {
-        await expenseService.create({ ...values, amount: Number(values.amount) });
-        showToast('Expense added successfully');
-      }
-      setFormOpen(false);
-      refreshAll();
-    } catch (err) {
-      setFormError(err instanceof Error ? err.message : 'Failed to save expense');
-    } finally {
-      setFormSubmitting(false);
+  try {
+    if (editTarget) {
+    await expenseService.update(editTarget.id, {
+  ...values,
+  category: values.category as Category,
+});
+      showToast('Expense updated successfully');
+    } else {
+    await expenseService.create({
+  ...values,
+  category: values.category as Category,
+});
+  
+      showToast('Expense added successfully');
     }
-  };
+
+    setFormOpen(false);
+    refreshAll();
+  } catch (err) {
+    setFormError(
+      err instanceof Error ? err.message : 'Failed to save expense'
+    );
+  } finally {
+    setFormSubmitting(false);
+  }
+};
 
   const handleConfirmDelete = async () => {
     if (!deleteTarget) return;

@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback, useMemo } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { expenseService } from '@/services/expense.service';
 import type { Expense, ExpenseFilters, PaginatedResponse } from '@/types';
 import { DEFAULT_PAGE_SIZE } from '@/constants';
@@ -25,8 +25,8 @@ export function useExpenses(filters: ExpenseFilters): UseExpensesReturn {
   const [page, setPage] = useState(1);
   const [refreshKey, setRefreshKey] = useState(0);
 
-  // When external filters change, reset to page 1
   const filtersKey = JSON.stringify(filters);
+
   useEffect(() => {
     setPage(1);
   }, [filtersKey]);
@@ -34,29 +34,45 @@ export function useExpenses(filters: ExpenseFilters): UseExpensesReturn {
   useEffect(() => {
     let cancelled = false;
 
-    const fetch = async () => {
+    const fetchExpenses = async () => {
       setIsLoading(true);
       setError(null);
+
       try {
         const data = await expenseService.getAll({
           ...filters,
           page,
           pageSize: DEFAULT_PAGE_SIZE,
         });
-        if (!cancelled) setResult(data);
+
+        if (!cancelled) {
+          setResult(data);
+        }
       } catch (err) {
-        if (!cancelled) setError(err instanceof Error ? err.message : 'Failed to load expenses');
+        if (!cancelled) {
+          setError(
+            err instanceof Error
+              ? err.message
+              : 'Failed to load expenses'
+          );
+        }
       } finally {
-        if (!cancelled) setIsLoading(false);
+        if (!cancelled) {
+          setIsLoading(false);
+        }
       }
     };
 
-    fetch();
-    return () => { cancelled = true; };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [filtersKey, page, refreshKey]);
+    fetchExpenses();
 
-  const refetch = useCallback(() => setRefreshKey((k) => k + 1), []);
+    return () => {
+      cancelled = true;
+    };
+  }, [filtersKey, page, refreshKey, filters]);
+
+  const refetch = useCallback(() => {
+    setRefreshKey((k) => k + 1);
+  }, []);
 
   return {
     expenses: result?.data ?? [],

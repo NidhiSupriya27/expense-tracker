@@ -1,4 +1,11 @@
-import { Box, Card, CardContent, CardHeader, Typography, useTheme } from '@mui/material';
+import {
+  Box,
+  Card,
+  CardContent,
+  CardHeader,
+  Typography,
+  useTheme,
+} from '@mui/material';
 import {
   PieChart,
   Pie,
@@ -22,12 +29,18 @@ interface SpendingPieChartProps {
 
 interface CustomTooltipProps {
   active?: boolean;
-  payload?: Array<{ name: string; value: number; payload: PieEntry }>;
+  payload?: Array<{
+    name: string;
+    value: number;
+    payload: PieEntry;
+  }>;
 }
 
 function CustomTooltip({ active, payload }: CustomTooltipProps) {
   if (!active || !payload?.length) return null;
+
   const item = payload[0];
+
   return (
     <Box
       sx={{
@@ -42,6 +55,7 @@ function CustomTooltip({ active, payload }: CustomTooltipProps) {
       <Typography variant="body2" fontWeight={700}>
         {item.name}
       </Typography>
+
       <Typography variant="body2" color="text.secondary">
         {formatCurrency(item.value)}
       </Typography>
@@ -49,21 +63,27 @@ function CustomTooltip({ active, payload }: CustomTooltipProps) {
   );
 }
 
-export default function SpendingPieChart({ data }: SpendingPieChartProps) {
+export default function SpendingPieChart({
+  data,
+}: SpendingPieChartProps) {
   const theme = useTheme();
 
   return (
     <Card sx={{ height: '100%' }}>
       <CardHeader
-        title={<Typography variant="h6" fontWeight={700}>Spending by Category</Typography>}
+        title={
+          <Typography variant="h6" fontWeight={700}>
+            Spending by Category
+          </Typography>
+        }
         sx={{ pb: 0, px: 3, pt: 2.5 }}
       />
+
       <CardContent>
         {data.length === 0 ? (
           <EmptyState
             title="No data"
             description="Add expenses to see your spending breakdown."
-            minHeight={220}
           />
         ) : (
           <ResponsiveContainer width="100%" height={260}>
@@ -78,13 +98,23 @@ export default function SpendingPieChart({ data }: SpendingPieChartProps) {
                 dataKey="value"
               >
                 {data.map((entry) => (
-                  <Cell key={entry.name} fill={entry.fill} stroke="none" />
+                  <Cell
+                    key={entry.name}
+                    fill={entry.fill}
+                    stroke="none"
+                  />
                 ))}
               </Pie>
+
               <Tooltip content={<CustomTooltip />} />
+
               <Legend
                 formatter={(value) => (
-                  <Typography component="span" variant="caption" color={theme.palette.text.secondary}>
+                  <Typography
+                    component="span"
+                    variant="caption"
+                    color={theme.palette.text.secondary}
+                  >
                     {value}
                   </Typography>
                 )}
