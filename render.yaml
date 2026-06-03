@@ -1,0 +1,17 @@
+services:
+  - type: web
+    name: spendwise-api
+    env: node
+    region: oregon
+    plan: free
+    buildCommand: cd server && npm install && npx prisma generate && npx prisma db push
+    startCommand: cd server && npm run start
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: DATABASE_URL
+        value: file:./prod.db
+      - key: CORS_ORIGIN
+        value: https://your-vercel-app.vercel.app
+      - key: PORT
+        value: 3001
