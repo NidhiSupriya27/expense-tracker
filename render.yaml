@@ -5,7 +5,7 @@ services:
     region: oregon
     plan: free
 
-  buildCommand: cd server && npm install --include=dev && npm run build && npx prisma generate && npx prisma db push && npm run db:seed
+buildCommand: cd server && npm install --include=dev && npm run build && npx prisma generate && npx prisma db push && npm run db:seed
 
     startCommand: cd server && npm run start
 
